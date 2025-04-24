@@ -1,26 +1,59 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Custom global styles */
+body,
+html {
+  @apply m-0 p-0 h-screen w-screen bg-cover bg-no-repeat;
+  background-image: url("/assets/bg1.jpg");
+  background-color: rgba(255, 255, 255, 0.5);
+  background-blend-mode: multiply;
+  font-family: "Segoe UI", sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.container {
+  @apply flex justify-center items-center bg-white/85 rounded-3xl p-12 my-8 mx-auto w-11/12 max-w-3xl gap-10;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.left {
+  @apply flex-1 text-center;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.left h1 {
+  @apply text-4xl my-5;
+}
+
+.left h1 span {
+  @apply text-orange-500;
+}
+
+.left p {
+  @apply font-bold text-lg;
+}
+
+.right {
+  @apply flex-1;
+}
+
+.right h2 {
+  @apply text-2xl mb-5;
+}
+
+.form-input {
+  @apply mb-4;
+}
+
+.form-input input {
+  @apply w-full p-4 rounded-full bg-black text-white font-bold;
+}
+
+.form-input input::placeholder {
+  @apply text-white;
+}
+
+.birth-inputs {
+  @apply flex gap-2.5;
+}
+
+.form-button-main {
+  @apply py-3 px-7 rounded-full bg-indigo-500 text-white font-bold text-base cursor-pointer mt-2.5;
 }
