@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @default(uuid())
+  username         String            @unique
+  password         String
+  email            String            @unique
+  profilePicture   String?
+  fullName         String?
+  shipDetails      AddressDetails?   @relation(fields: [idAddressDetails], references: [id])
+  idAddressDetails String?           @unique
+  listings         Listing[]         @relation("SellerListings")
+  cart             Cart?
+  purchases        PurchaseHistory[] @relation("BuyerPurchases")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model AddressDetails {
+  id         String @id @default(uuid())
+  name       String
+  receiver   String
+  province   String
+  city       String
+  postalCode String
+  address    String
+  user       User?
+}
+
+model Listing {
+  id          String   @id @default(uuid())
+  seller      User     @relation("SellerListings", fields: [idSeller], references: [id])
+  idSeller    String
+  pictUrl     String
+  name        String
+  price       Int
+  description String   @db.Text
+  stock       Int
+  seenCount   Int      @default(0)
+  carts       Cart[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Expedition {
+  id               String            @id @default(uuid())
+  name             String
+  paymentTimestamp Int
+  logo             String
+  purchases        PurchaseHistory[]
+}
+
+model PurchaseHistory {
+  id               String     @id @default(uuid())
+  buyer            User       @relation("BuyerPurchases", fields: [idBuyer], references: [id])
+  idBuyer          String
+  paymentTimestamp DateTime
+  totalPrice       Int
+  expedition       Expedition @relation(fields: [idExpedition], references: [id])
+  idExpedition     String
+  stock            Int
+  createdAt        DateTime   @default(now())
+}
+
+model Cart {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [idUser], references: [id])
+  idUser     String   @unique
+  listing    Listing  @relation(fields: [idListings], references: [id])
+  idListings String
+  totalPrice Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
