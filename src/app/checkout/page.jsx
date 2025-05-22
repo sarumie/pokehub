@@ -1,19 +1,14 @@
-import logo from "#/assets/logo.png";
+import logo from "#/logo.png";
 import backIcon from "#/assets/Vector.png";
 import gopayIcon from "#/assets/gopay-icon1.jpeg";
 import bcaIcon from "#/assets/bca-icon.png";
-
+import Image from "next/image";
+import Navbar from "@/components/Navbar";
 export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gradient-to-bl from-[#000000] to-[#81BFDA] text-black font-sans">
       {/* Navbar */}
-      <div className="navbar relative flex justify-center items-center bg-white px-5 py-3 shadow-md">
-        <button className="back-button absolute left-5 flex items-center p-2 hover:bg-gray-200 rounded-lg">
-          <img src={backIcon} alt="Back" className="w-5 h-5 mr-2" />
-          <span className="text-base text-[#333]">Back</span>
-        </button>
-        <img src={logo} alt="Logo" className="w-[152px] h-[45px]" />
-      </div>
+      <Navbar />
 
       {/* Checkout Section */}
       <div className="p-6 space-y-6">
@@ -85,13 +80,25 @@ export default function CheckoutPage() {
                     className="mr-2"
                     defaultChecked
                   />
-                  <img src={gopayIcon} alt="Gopay" className="w-6 h-6 mr-2" />{" "}
+                  <Image
+                    src={gopayIcon}
+                    alt="Gopay"
+                    width={24}
+                    height={24}
+                    className="mr-2"
+                  />
                   Gopay
                 </label>
                 <label className="flex items-center">
                   <input type="radio" name="payment" className="mr-2" />
-                  <img src={bcaIcon} alt="BCA" className="w-6 h-6 mr-2" /> BCA
-                  (Virtual Account)
+                  <Image
+                    src={bcaIcon}
+                    alt="BCA"
+                    width={24}
+                    height={24}
+                    className="mr-2"
+                  />
+                  BCA (Virtual Account)
                 </label>
               </div>
 

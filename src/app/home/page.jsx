@@ -21,7 +21,7 @@ const HomePage = () => {
       <div className="max-w-[1440px] mx-auto space-y-6 mt-6">
         <NewsCarousel />
         <TrendingItems />
-        <RecentBoosterPack />
+        {/* <RecentBoosterPack /> */}
       </div>
       <Footer />
     </div>

@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -64,9 +65,9 @@ const Header = ({ toggleSidebar }) => {
           >
             💬
           </button> */}
-          <button onClick={toggleSidebar} className="text-2xl">
+          {/* <button onClick={toggleSidebar} className="text-2xl">
             ☰
-          </button>
+          </button> */}
         </div>
       </div>
     </header>
