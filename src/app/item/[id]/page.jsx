@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { use } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
+import { useRouter } from "next/navigation";
 
 async function getListing(id) {
   const res = await fetch(
@@ -23,11 +24,13 @@ async function getListing(id) {
 }
 
 export default function ItemPage({ params }) {
+  const router = useRouter();
   const id = use(params).id;
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -42,6 +45,42 @@ export default function ItemPage({ params }) {
   const handleDecrement = () => {
     if (quantity > 1) {
       setQuantity((prev) => prev - 1);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    try {
+      setIsAddingToCart(true);
+      const userId = sessionStorage.getItem("userId");
+
+      if (!userId) {
+        router.push("/login");
+        return;
+      }
+
+      const response = await fetch("/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          listingId: id,
+          quantity,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add to cart");
+      }
+
+      // Show success message or redirect to cart
+      router.push("/checkout");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Failed to add item to cart. Please try again.");
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -133,9 +172,13 @@ export default function ItemPage({ params }) {
                   <button className="bg-[hsla(0,6%,9%,1)] text-white font-semibold py-4 px-2 rounded-lg hover:bg-[hsla(0,6%,15%,1)] transition-colors">
                     Beli sekarang
                   </button>
-                  <button className="bg-[hsla(210,40%,96%,1)] text-[hsla(0,6%,9%,1)] font-semibold py-4 px-2 rounded-lg flex items-center justify-center gap-2 hover:bg-[hsla(210,40%,90%,1)] transition-colors">
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={isAddingToCart}
+                    className="bg-[hsla(210,40%,96%,1)] text-[hsla(0,6%,9%,1)] font-semibold py-4 px-2 rounded-lg flex items-center justify-center gap-2 hover:bg-[hsla(210,40%,90%,1)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     <RiShoppingCartLine size={24} />
-                    Keranjang
+                    {isAddingToCart ? "Menambahkan..." : "Keranjang"}
                   </button>
                 </div>
               </div>

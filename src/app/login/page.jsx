@@ -9,15 +9,41 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (username === "a" && password === "b") {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // Successful login
+      sessionStorage.setItem("userId", data.id);
       router.push("/home");
-    } else {
-      setError("Invalid username or password");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleRegister = () => {
+    router.push("/register");
   };
 
   return (
@@ -41,6 +67,7 @@ export default function LoginPage() {
             className="w-full p-4 pl-12 rounded-full bg-black text-white placeholder-white"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            disabled={isLoading}
           />
         </div>
         <div className="mb-4 w-full relative">
@@ -51,37 +78,29 @@ export default function LoginPage() {
             className="w-full p-4 pl-12 rounded-full bg-black text-white placeholder-white"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
           />
         </div>
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <button
           type="submit"
-          className="w-full py-3 px-7 rounded-full bg-indigo-500 text-white font-bold text-base cursor-pointer mt-2.5"
+          className="w-full py-3 px-7 rounded-full bg-indigo-500 text-white font-bold text-base cursor-pointer mt-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isLoading}
         >
-          Login
+          {isLoading ? "Logging in..." : "Login"}
         </button>
         <div className="w-full">
           <hr className="border-t-2 border-gray-300" />
         </div>
-        <div className="flex space-x-4 w-full">
-          {/* <button
-            type="button"
-            className="flex-1 p-4 rounded-full bg-black text-white flex items-center justify-center"
-          >
-            <FaGoogle className="mr-2" />
-          </button>
+        <div className="flex flex-col items-center w-full space-y-4">
+          <p className="text-gray-600">Don't have an account?</p>
           <button
             type="button"
-            className="flex-1 p-4 rounded-full bg-black text-white flex items-center justify-center"
+            onClick={handleRegister}
+            className="w-full py-3 px-7 rounded-full border-2 border-indigo-500 text-indigo-500 font-bold text-base cursor-pointer hover:bg-indigo-50 transition-colors"
           >
-            <FaApple className="mr-2" />
+            Register
           </button>
-          <button
-            type="button"
-            className="flex-1 p-4 rounded-full bg-black text-white flex items-center justify-center"
-          >
-            <FaTwitter className="mr-2" />
-          </button> */}
         </div>
       </form>
     </div>

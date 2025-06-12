@@ -50,10 +50,7 @@ const Header = ({ toggleSidebar }) => {
 
         {/* Icons + Sidebar Toggle */}
         <div className="flex space-x-4 text-xl">
-          <button
-            onClick={() => console.log("Profile Clicked")}
-            className="text-2xl"
-          >
+          <button onClick={() => router.push("/profile")} className="text-2xl">
             👤
           </button>
           <Link href="/checkout" className="text-2xl">

@@ -13,6 +13,8 @@ export default function RegisterPage() {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
   const validateForm = () => {
     const newErrors = {};
@@ -56,15 +58,42 @@ export default function RegisterPage() {
       ...prev,
       [name]: value,
     }));
+    // Clear server error when user makes changes
+    if (serverError) setServerError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setServerError("");
 
     if (validateForm()) {
-      // For testing purposes, we'll just log the data and redirect
-      console.log("Registration successful:", formData);
-      router.push("/login");
+      setIsLoading(true);
+      try {
+        const response = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Registration failed");
+        }
+
+        // Registration successful
+        router.push("/login");
+      } catch (err) {
+        setServerError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -98,6 +127,7 @@ export default function RegisterPage() {
               value={formData.username}
               onChange={handleChange}
               className="w-full p-4 rounded-full bg-black text-white font-bold placeholder-white"
+              disabled={isLoading}
             />
             {errors.username && (
               <span className="text-red-500 text-sm mt-1 block">
@@ -113,6 +143,7 @@ export default function RegisterPage() {
               value={formData.email}
               onChange={handleChange}
               className="w-full p-4 rounded-full bg-black text-white font-bold placeholder-white"
+              disabled={isLoading}
             />
             {errors.email && (
               <span className="text-red-500 text-sm mt-1 block">
@@ -128,6 +159,7 @@ export default function RegisterPage() {
               value={formData.password}
               onChange={handleChange}
               className="w-full p-4 rounded-full bg-black text-white font-bold placeholder-white"
+              disabled={isLoading}
             />
             {errors.password && (
               <span className="text-red-500 text-sm mt-1 block">
@@ -143,6 +175,7 @@ export default function RegisterPage() {
               value={formData.confirmPassword}
               onChange={handleChange}
               className="w-full p-4 rounded-full bg-black text-white font-bold placeholder-white"
+              disabled={isLoading}
             />
             {errors.confirmPassword && (
               <span className="text-red-500 text-sm mt-1 block">
@@ -150,11 +183,17 @@ export default function RegisterPage() {
               </span>
             )}
           </div>
+          {serverError && (
+            <div className="mb-4 text-red-500 text-sm text-center">
+              {serverError}
+            </div>
+          )}
           <button
             type="submit"
-            className="w-full py-3 px-7 rounded-full bg-indigo-500 text-white font-bold text-base cursor-pointer mt-2.5 hover:bg-indigo-600 transition-colors"
+            className="w-full py-3 px-7 rounded-full bg-indigo-500 text-white font-bold text-base cursor-pointer mt-2.5 hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLoading}
           >
-            Register
+            {isLoading ? "Registering..." : "Register"}
           </button>
         </form>
       </div>
