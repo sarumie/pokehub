@@ -19,6 +19,8 @@ model User {
   listings         Listing[]         @relation("SellerListings")
   cart             Cart?
   purchases        PurchaseHistory[] @relation("BuyerPurchases")
+  ratingsGiven     Rating[]          @relation("UserRatings")
+  ratingsReceived  Rating[]          @relation("SellerRatings")
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 }
@@ -45,6 +47,7 @@ model Listing {
   stock       Int
   seenCount   Int      @default(0)
   carts       Cart[]
+  ratings     Rating[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -66,6 +69,7 @@ model PurchaseHistory {
   expedition       Expedition @relation(fields: [idExpedition], references: [id])
   idExpedition     String
   stock            Int
+  rating           Rating?
   createdAt        DateTime   @default(now())
 }
 
@@ -78,4 +82,21 @@ model Cart {
   totalPrice Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model Rating {
+  id        String          @id @default(uuid())
+  order     PurchaseHistory @relation(fields: [orderId], references: [id])
+  orderId   String          @unique
+  user      User            @relation("UserRatings", fields: [userId], references: [id])
+  userId    String
+  listing   Listing         @relation(fields: [listingId], references: [id])
+  listingId String
+  seller    User            @relation("SellerRatings", fields: [sellerId], references: [id])
+  sellerId  String
+  score     Int
+  review    String?         @db.Text
+  createdAt DateTime        @default(now())
+
+  @@unique([userId, listingId])
 }
