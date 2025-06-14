@@ -16,20 +16,23 @@ export async function POST(request) {
       );
     }
 
-    // Prepare FormData for vgy.me upload
-    const vgyFormData = new FormData();
-    vgyFormData.append("file", file);
-    // Add userkey if you have one (optional for vgy.me)
-    // vgyFormData.append("userkey", "YourUserKey");
+    // Prepare upload data similar to PHP's CURLFile structure
+    const uploadData = new FormData();
+    uploadData.append("file", file);
+    // userkey is left empty for now as requested
+    uploadData.append(
+      "userkey",
+      "lHVHIWKcfI0NT6EbDG0Q7TVbOZKMrn3Rle7PkrY0NymNef9odpBFMw6wGGTv0kAd"
+    );
 
-    // Upload to vgy.me
+    // Upload to vgy.me with fetch (equivalent to PHP's cURL)
     const vgyResponse = await fetch("https://vgy.me/upload", {
       method: "POST",
-      body: vgyFormData,
+      body: uploadData,
     });
 
     if (!vgyResponse.ok) {
-      throw new Error("Failed to upload to vgy.me");
+      throw new Error(`Failed to upload to vgy.me: ${vgyResponse.statusText}`);
     }
 
     const vgyData = await vgyResponse.json();
