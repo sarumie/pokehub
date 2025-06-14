@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import { useEffect, useState } from "react";
 import { formatPrice } from "@/utils/priceFormat";
 import { useRouter } from "next/navigation";
+import { ProtectedRoute } from "@/components/AuthGuard";
 
 // QR Code Modal Component
 const QRCodeModal = ({ isOpen, onClose, totalAmount }) => {
@@ -51,7 +52,7 @@ const QRCodeModal = ({ isOpen, onClose, totalAmount }) => {
   );
 };
 
-export default function CheckoutPage() {
+function CheckoutPageContent() {
   const router = useRouter();
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -280,5 +281,13 @@ export default function CheckoutPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <ProtectedRoute>
+      <CheckoutPageContent />
+    </ProtectedRoute>
   );
 }

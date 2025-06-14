@@ -3,8 +3,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import logoSimple from "#/logo-simple.png";
+import { PublicRoute } from "@/components/AuthGuard";
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",
@@ -198,5 +199,13 @@ export default function RegisterPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <PublicRoute>
+      <RegisterPageContent />
+    </PublicRoute>
   );
 }

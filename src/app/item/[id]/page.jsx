@@ -7,6 +7,7 @@ import { use } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { useRouter } from "next/navigation";
+import { ProtectedRoute } from "@/components/AuthGuard";
 
 async function getListing(id) {
   const res = await fetch(
@@ -23,7 +24,7 @@ async function getListing(id) {
   return res.json();
 }
 
-export default function ItemPage({ params }) {
+function ItemPageContent({ params }) {
   const router = useRouter();
   const id = use(params).id;
   const [listing, setListing] = useState(null);
@@ -187,5 +188,13 @@ export default function ItemPage({ params }) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ItemPage({ params }) {
+  return (
+    <ProtectedRoute>
+      <ItemPageContent params={params} />
+    </ProtectedRoute>
   );
 }

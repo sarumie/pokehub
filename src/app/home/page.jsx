@@ -5,9 +5,10 @@ import NewsCarousel from "@/components/home/NewsCarousel";
 import TrendingItems from "@/components/home/TrendingItems";
 import RecentBoosterPack from "@/components/home/RecentBoosterPack";
 import Footer from "@/components/Footer";
+import { ProtectedRoute } from "@/components/AuthGuard";
 import { useState } from "react";
 
-const HomePage = () => {
+const HomePageContent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -25,6 +26,14 @@ const HomePage = () => {
       </div>
       <Footer />
     </div>
+  );
+};
+
+const HomePage = () => {
+  return (
+    <ProtectedRoute>
+      <HomePageContent />
+    </ProtectedRoute>
   );
 };
 

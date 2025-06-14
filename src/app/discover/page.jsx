@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ListingCard from "@/components/discover/ListingCard";
 import { useSearchParams } from "next/navigation";
+import { ProtectedRoute } from "@/components/AuthGuard";
 
 function SearchResults() {
   const [listings, setListings] = useState([]);
@@ -56,7 +57,7 @@ function SearchResults() {
   );
 }
 
-export default function Discover() {
+function DiscoverContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -79,5 +80,13 @@ export default function Discover() {
         <SearchResults />
       </Suspense>
     </div>
+  );
+}
+
+export default function Discover() {
+  return (
+    <ProtectedRoute>
+      <DiscoverContent />
+    </ProtectedRoute>
   );
 }

@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import logoSimple from "#/logo-simple.png";
 import Image from "next/image";
+import { PublicRoute } from "@/components/AuthGuard";
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordPageContent() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -148,5 +149,13 @@ export default function ForgotPasswordPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <PublicRoute>
+      <ForgotPasswordPageContent />
+    </PublicRoute>
   );
 }

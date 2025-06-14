@@ -3,7 +3,9 @@ import Image from "next/image";
 import { FaLock } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
-export default function ProfilePage() {
+import { ProtectedRoute } from "@/components/AuthGuard";
+
+function ProfilePageContent() {
   const router = useRouter();
   // Placeholder data
   const user = {
@@ -139,5 +141,13 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <ProtectedRoute>
+      <ProfilePageContent />
+    </ProtectedRoute>
   );
 }

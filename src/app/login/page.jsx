@@ -4,13 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import logoSimple from "#/logo-simple.png";
 import Image from "next/image";
+import { PublicRoute } from "@/components/AuthGuard";
+import { useAuth } from "@/hooks/useAuth";
 
-export default function LoginPage() {
+function LoginPageContent() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +36,7 @@ export default function LoginPage() {
       }
 
       // Successful login
-      sessionStorage.setItem("userId", data.id);
+      login(data.id);
       router.push("/home");
     } catch (err) {
       setError(err.message);
@@ -104,5 +107,13 @@ export default function LoginPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <PublicRoute>
+      <LoginPageContent />
+    </PublicRoute>
   );
 }
