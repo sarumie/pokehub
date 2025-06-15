@@ -8,13 +8,37 @@ export const useAuth = () => {
   const [userId, setUserId] = useState(null);
   const router = useRouter();
 
+  const verifyUser = async (id) => {
+    try {
+      const response = await fetch(`/api/profile?userId=${id}`);
+      if (!response.ok) {
+        if (response.status === 404) {
+          // User not found in database
+          sessionStorage.removeItem("userId");
+          setIsAuthenticated(false);
+          setUserId(null);
+          router.push("/login");
+          return false;
+        }
+        throw new Error("Failed to verify user");
+      }
+      return true;
+    } catch (error) {
+      console.error("Error verifying user:", error);
+      return false;
+    }
+  };
+
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       try {
         const storedUserId = sessionStorage.getItem("userId");
         if (storedUserId) {
-          setIsAuthenticated(true);
-          setUserId(storedUserId);
+          const isValid = await verifyUser(storedUserId);
+          if (isValid) {
+            setIsAuthenticated(true);
+            setUserId(storedUserId);
+          }
         } else {
           setIsAuthenticated(false);
           setUserId(null);
