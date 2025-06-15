@@ -32,7 +32,7 @@ const ListingCard = ({ listing }) => {
         {/* Listing Image */}
         <div className="relative w-full h-[281px] mb-2">
           <Image
-            src={"/listing_pict/" + listing.pictUrl}
+            src={listing.pictUrl}
             alt={listing.name}
             fill
             className="object-cover rounded-lg"
