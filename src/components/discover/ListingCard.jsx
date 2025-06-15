@@ -12,8 +12,7 @@ const ListingCard = ({ listing }) => {
           <div className="relative w-8 h-8">
             <Image
               src={
-                "/photo_profile/" + listing.seller.profilePicture ||
-                "/photo_profile/default.jpg"
+                listing.seller.profilePicture || "https://i.vgy.me/PEwKi8.jpg"
               }
               alt={listing.seller.username}
               fill
