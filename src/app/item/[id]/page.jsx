@@ -1,7 +1,13 @@
 "use client";
 import Image from "next/image";
 import { formatPrice } from "@/utils/priceFormat";
-import { RiAddLine, RiSubtractLine, RiShoppingCartLine } from "react-icons/ri";
+import {
+  RiAddLine,
+  RiSubtractLine,
+  RiShoppingCartLine,
+  RiStarFill,
+  RiStarLine,
+} from "react-icons/ri";
 import { useEffect, useState } from "react";
 import { use } from "react";
 import Navbar from "@/components/Navbar";
@@ -24,6 +30,52 @@ async function getListing(id) {
   return res.json();
 }
 
+async function getSellerRating(sellerId) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/sellers/${sellerId}/ratings`,
+      {
+        cache: "no-store",
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch seller ratings");
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error("Error fetching seller ratings:", error);
+    // Return fallback data if API fails
+    return {
+      seller: {
+        id: sellerId,
+        username: "Unknown Seller",
+        profilePicture: "/api/placeholder/40/40",
+        overallRating: 0,
+        totalReviews: 0,
+      },
+      recentReviews: [],
+    };
+  }
+}
+
+function StarRating({ rating, size = 16 }) {
+  const stars = [];
+  for (let i = 1; i <= 5; i++) {
+    stars.push(
+      <span key={i}>
+        {i <= rating ? (
+          <RiStarFill size={size} className="text-yellow-400" />
+        ) : (
+          <RiStarLine size={size} className="text-gray-300" />
+        )}
+      </span>
+    );
+  }
+  return <div className="flex items-center gap-1">{stars}</div>;
+}
+
 function ItemPageContent({ params }) {
   const router = useRouter();
   const id = use(params).id;
@@ -32,6 +84,7 @@ function ItemPageContent({ params }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [sellerRating, setSellerRating] = useState(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -85,11 +138,19 @@ function ItemPageContent({ params }) {
     }
   };
 
+  const handleSeeAllReviews = () => {
+    router.push(`/u/${sellerRating?.seller?.username}`);
+  };
+
   useEffect(() => {
     const fetchListing = async () => {
       try {
         const data = await getListing(id);
         setListing(data);
+
+        // Fetch seller rating data
+        const ratingData = await getSellerRating(data.idSeller);
+        setSellerRating(ratingData);
       } catch (error) {
         console.error("Error fetching listing:", error);
       } finally {
@@ -117,10 +178,10 @@ function ItemPageContent({ params }) {
           {/* Image Container */}
           <div className="w-[400px] h-[470px] relative">
             <Image
-              src={"/listing_pict/" + listing.pictUrl}
+              src={listing.pictUrl}
               alt={listing.name}
               fill
-              className="object-contain"
+              className="object-contain rounded-2xl"
             />
           </div>
 
@@ -129,12 +190,100 @@ function ItemPageContent({ params }) {
             <h1 className="text-4xl font-bold">{listing.name}</h1>
 
             <div className="flex gap-4">
-              {/* Description Section */}
-              <div className="flex-1 flex flex-col gap-2">
-                <h2 className="text-slate-500 text-base font-semibold">
-                  Deskripsi
-                </h2>
-                <p className="text-base">{listing.description}</p>
+              {/* Left Section - Description and Rating */}
+              <div className="flex-1 flex flex-col gap-6">
+                {/* Description Section */}
+                <div className="flex flex-col gap-2">
+                  <h2 className="text-slate-500 text-base font-semibold">
+                    Deskripsi
+                  </h2>
+                  <p className="text-base">{listing.description}</p>
+                </div>
+
+                {/* Rating Section */}
+                {sellerRating && (
+                  <div className="border border-slate-200 rounded-2xl p-6">
+                    {/* Seller Profile */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 relative rounded-full overflow-hidden">
+                        <Image
+                          src={sellerRating.seller.profilePicture}
+                          alt={sellerRating.seller.username}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg">
+                          {sellerRating.seller.username}
+                        </h3>
+                        <div className="flex items-center gap-2">
+                          <StarRating
+                            rating={sellerRating.seller.overallRating}
+                          />
+                          <span className="text-sm text-slate-600">
+                            {sellerRating.seller.overallRating} (
+                            {sellerRating.seller.totalReviews})
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleSeeAllReviews}
+                        className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                      >
+                        See profile &gt;
+                      </button>
+                    </div>
+
+                    {/* Reviews Title */}
+                    <h4 className="text-lg font-semibold mb-4">
+                      Review untuk {sellerRating.seller.username}
+                    </h4>
+
+                    {/* Recent Reviews */}
+                    <div className="space-y-4">
+                      {sellerRating.recentReviews.map((review) => (
+                        <div
+                          key={review.id}
+                          className="border-b border-slate-100 last:border-b-0 pb-4 last:pb-0"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <StarRating rating={review.rating} size={14} />
+                            <span className="text-sm text-slate-500">
+                              {review.timeAgo}
+                            </span>
+                          </div>
+                          <div className="flex gap-3">
+                            <div className="w-8 h-8 relative rounded-full overflow-hidden flex-shrink-0">
+                              <Image
+                                src={review.reviewerAvatar}
+                                alt={review.reviewerName}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-medium text-sm mb-1">
+                                {review.reviewerName}
+                              </p>
+                              <p className="text-sm text-slate-700 leading-relaxed">
+                                {review.comment}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* See All Reviews Button */}
+                    <button
+                      onClick={handleSeeAllReviews}
+                      className="w-full mt-4 py-2 text-center text-blue-600 hover:text-blue-800 transition-colors font-medium"
+                    >
+                      Lihat semua review
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Price and Action Section */}

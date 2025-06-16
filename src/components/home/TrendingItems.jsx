@@ -44,7 +44,7 @@ const TrendingItems = () => {
             <div className="flex flex-col items-center transition-transform duration-200 transform hover:-translate-y-1">
               <div className="relative w-68 h-68">
                 <Image
-                  src={"/listing_pict/" + item.pictUrl}
+                  src={item.pictUrl}
                   alt={item.name}
                   fill
                   className="object-contain rounded-2xl"

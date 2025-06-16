@@ -195,6 +195,19 @@ async function main() {
         const purchase = unratedPurchases[0];
         purchase._ratingCreated = true; // Mark this purchase as rated
 
+        const reviews = [
+          "nih ya buat kalian kalian yang hate iphone, iphone tuh udah best experience smartphone you esti had, apapun gher ini itu kayak pake android yang pake gcam lah segala apa lah, semua terintegrasi dengan baik di ekosistem apple, main game nggak bakal ngedrop, video smooth anti kempa kempa klub, kualitas audio terbaik yang pernah ada, walau gaada headphone jack nya tuh tinggal belin airpods pro 2 aja udah nambang banget dari dengerin musik dengan kualitas terbaik dengan fitur yang melimpah, jadi buat lu yang ngehate iphone, pikir pikir lagi kalau mau ngehate kalau hp mu aja gabisa sebagus iphone",
+          "Barang sesuai deskripsi, packing rapih, pengiriman cepat. Recommended seller!",
+          "Produk bagus, hanya saja agak lama pengirimannya. Overall satisfied.",
+          "Kualitas kartu sangat bagus, kondisi mint! Terima kasih!",
+          "Seller responsif dan fast respon. Barang original dan sesuai foto.",
+          "Pengiriman super cepat, packing aman. Highly recommended!",
+          "Card condition perfect, exactly as described. Will buy again!",
+          "Harga worth it untuk kualitas yang didapat. Thanks seller!",
+          "Transaksi lancar, seller ramah dan profesional.",
+          "Item received in excellent condition. Great communication!",
+        ];
+
         await prisma.rating.create({
           data: {
             orderId: purchase.id,
@@ -202,7 +215,7 @@ async function main() {
             listingId: sellerListing.id,
             sellerId: seller.id,
             score: Math.floor(Math.random() * 3) + 3, // Random score between 3-5
-            review: "Great transaction! Very satisfied with the purchase.",
+            review: reviews[Math.floor(Math.random() * reviews.length)],
           },
         });
       }
@@ -220,6 +233,15 @@ async function main() {
       },
     });
   }
+
+  // Update one user with specific credentials
+  await prisma.user.update({
+    where: { id: users[0].id },
+    data: {
+      username: "sarue",
+      password: "saruesarue",
+    },
+  });
 
   console.log("Database seeded successfully!");
 }
