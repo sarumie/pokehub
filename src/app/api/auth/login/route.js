@@ -20,7 +20,8 @@ export async function POST(request) {
 
     // Create session cookie that expires in 30 days
     const thirtyDays = 30 * 24 * 60 * 60 * 1000;
-    cookies().set({
+    const cookieStore = cookies();
+    cookieStore.set({
       name: "session",
       value: user.id,
       httpOnly: true,
