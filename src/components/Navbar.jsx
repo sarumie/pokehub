@@ -68,9 +68,8 @@ const Header = ({ toggleSidebar }) => {
   };
 
   const navigateToProfile = () => {
-    const userId = sessionStorage.getItem("userId");
-    if (userId) {
-      router.push(`/u/${userId}`);
+    if (userData) {
+      router.push(`/u/${userData.username}`);
       setShowDropdown(false);
     }
   };
