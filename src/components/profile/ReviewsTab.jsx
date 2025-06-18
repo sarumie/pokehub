@@ -81,7 +81,7 @@ const ReviewsTab = ({ userId }) => {
           </div>
         </div>
         <div className="bg-gray-900 text-white rounded-xl p-4">
-          <h3 className="text-lg font-semibold mb-2">As Buyer</h3>
+          <h3 className="text-lg font-semibold mb-2">Dari Buyer</h3>
           <div className="flex items-center gap-2">
             <div className="text-3xl font-bold">
               {stats?.asBuyerAvg || "0.0"}
@@ -91,11 +91,11 @@ const ReviewsTab = ({ userId }) => {
             </div>
           </div>
           <div className="text-sm text-gray-300 mt-2">
-            {stats?.asBuyer || 0} reviews as buyer
+            {stats?.asBuyer || 0} reviews dari buyer
           </div>
         </div>
         <div className="bg-gray-900 text-white rounded-xl p-4">
-          <h3 className="text-lg font-semibold mb-2">As Seller</h3>
+          <h3 className="text-lg font-semibold mb-2">Dari Seller</h3>
           <div className="flex items-center gap-2">
             <div className="text-3xl font-bold">
               {stats?.asSellerAvg || "0.0"}
@@ -105,7 +105,7 @@ const ReviewsTab = ({ userId }) => {
             </div>
           </div>
           <div className="text-sm text-gray-300 mt-2">
-            {stats?.asSeller || 0} reviews as seller
+            {stats?.asSeller || 0} reviews dari seller
           </div>
         </div>
       </div>
@@ -131,7 +131,7 @@ const ReviewsTab = ({ userId }) => {
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            As Buyer
+            Dari Buyer
           </button>
           <button
             onClick={() => setType("seller")}
@@ -141,7 +141,7 @@ const ReviewsTab = ({ userId }) => {
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            As Seller
+            Dari Seller
           </button>
         </div>
         <select
