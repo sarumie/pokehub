@@ -17,12 +17,9 @@ import { ProtectedRoute } from "@/components/AuthGuard";
 import Loading from "@/components/Loading";
 
 async function getListing(id) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/listings/${id}`,
-    {
-      cache: "no-store",
-    }
-  );
+  const res = await fetch(`/api/listings/${id}`, {
+    cache: "no-store",
+  });
 
   if (!res.ok) {
     throw new Error("Failed to fetch listing");
@@ -33,12 +30,9 @@ async function getListing(id) {
 
 async function getSellerRating(sellerId) {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/sellers/${sellerId}/ratings`,
-      {
-        cache: "no-store",
-      }
-    );
+    const res = await fetch(`/api/sellers/${sellerId}/ratings`, {
+      cache: "no-store",
+    });
 
     if (!res.ok) {
       throw new Error("Failed to fetch seller ratings");

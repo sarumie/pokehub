@@ -13,9 +13,7 @@ export default function ItemDetails({ id }) {
   useEffect(() => {
     async function getListing() {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/listings/${id}`
-        );
+        const res = await fetch(`/api/listings/${id}`);
 
         if (!res.ok) {
           throw new Error("Failed to fetch listing");

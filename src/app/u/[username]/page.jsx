@@ -11,12 +11,9 @@ import Loading from "@/components/Loading";
 import ReviewsTab from "@/components/profile/ReviewsTab";
 
 async function getUserByUsername(username) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}?username=true`,
-    {
-      cache: "no-store",
-    }
-  );
+  const res = await fetch(`/api/users/${username}?username=true`, {
+    cache: "no-store",
+  });
 
   if (!res.ok) {
     throw new Error("Failed to fetch user");
@@ -26,12 +23,9 @@ async function getUserByUsername(username) {
 }
 
 async function getAllSellerRatings(sellerId) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/sellers/${sellerId}/ratings/all`,
-    {
-      cache: "no-store",
-    }
-  );
+  const res = await fetch(`/api/sellers/${sellerId}/ratings/all`, {
+    cache: "no-store",
+  });
 
   if (!res.ok) {
     throw new Error("Failed to fetch seller ratings");
