@@ -222,16 +222,35 @@ async function main() {
     }
   }
 
-  // Create cart with 1 item for each user
+  // Create cart items (1-3 items per user)
   for (const user of users) {
-    const randomListing = listings[Math.floor(Math.random() * listings.length)];
-    await prisma.cart.create({
-      data: {
-        idUser: user.id,
-        idListings: randomListing.id,
-        totalPrice: randomListing.price,
-      },
-    });
+    const numCartItems = Math.floor(Math.random() * 3) + 1; // 1-3 cart items per user
+    const userListings = new Set(); // To avoid duplicate listings in cart
+
+    for (let i = 0; i < numCartItems; i++) {
+      let randomListing;
+      let attempts = 0;
+
+      // Find a listing not already in this user's cart
+      do {
+        randomListing = listings[Math.floor(Math.random() * listings.length)];
+        attempts++;
+      } while (userListings.has(randomListing.id) && attempts < 10);
+
+      if (!userListings.has(randomListing.id)) {
+        userListings.add(randomListing.id);
+        const quantity = Math.floor(Math.random() * 3) + 1; // Random quantity 1-3
+
+        await prisma.cart.create({
+          data: {
+            idUser: user.id,
+            idListings: randomListing.id,
+            quantity: quantity,
+            totalPrice: randomListing.price * quantity,
+          },
+        });
+      }
+    }
   }
 
   // Update one user with specific credentials

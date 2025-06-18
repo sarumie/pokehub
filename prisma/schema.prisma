@@ -17,7 +17,7 @@ model User {
   shipDetails      AddressDetails?   @relation(fields: [idAddressDetails], references: [id])
   idAddressDetails String?           @unique
   listings         Listing[]         @relation("SellerListings")
-  cart             Cart?
+  cartItems        Cart[]
   purchases        PurchaseHistory[] @relation("BuyerPurchases")
   ratingsGiven     Rating[]          @relation("UserRatings")
   ratingsReceived  Rating[]          @relation("SellerRatings")
@@ -76,12 +76,15 @@ model PurchaseHistory {
 model Cart {
   id         String   @id @default(uuid())
   user       User     @relation(fields: [idUser], references: [id])
-  idUser     String   @unique
+  idUser     String
   listing    Listing  @relation(fields: [idListings], references: [id])
   idListings String
+  quantity   Int      @default(1)
   totalPrice Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@unique([idUser, idListings])
 }
 
 model Rating {
