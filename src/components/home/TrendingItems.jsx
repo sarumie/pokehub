@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/utils/priceFormat";
+import Loading from "@/components/Loading";
 
 const TrendingItems = () => {
   const [trendingItems, setTrendingItems] = useState([]);
@@ -28,9 +29,7 @@ const TrendingItems = () => {
     return (
       <section className="bg-white p-9 shadow-md rounded-4xl mx-auto">
         <h2 className="text-xl font-bold">Trending Items</h2>
-        <div className="flex justify-center items-center h-68 mt-3">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2"></div>
-        </div>
+        <Loading fullScreen={false} message="Loading trending items..." />
       </section>
     );
   }

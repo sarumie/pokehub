@@ -2,6 +2,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Loading from "@/components/Loading";
 
 export default function Home() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -18,9 +19,5 @@ export default function Home() {
   }, [isAuthenticated, isLoading, router]);
 
   // Show loading while checking auth
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
-    </div>
-  );
+  return <Loading message="Authenticating..." />;
 }

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { FaEdit, FaPlus, FaTimes } from "react-icons/fa";
 import Navbar from "@/components/Navbar";
 import { ProtectedRoute } from "@/components/AuthGuard";
+import Loading from "@/components/Loading";
 
 const defaultProfile = "/photo_profile/default.jpg";
 
@@ -323,12 +324,7 @@ function EditProfilePageContent() {
     return (
       <div className="min-h-screen">
         <Navbar />
-        <div className="max-w-6xl mx-auto py-10 px-4 flex justify-center items-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-800 mx-auto mb-4"></div>
-            <p>Loading profile...</p>
-          </div>
-        </div>
+        <Loading fullScreen={false} message="Loading profile..." />
       </div>
     );
   }

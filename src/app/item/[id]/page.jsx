@@ -14,6 +14,7 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/AuthGuard";
+import Loading from "@/components/Loading";
 
 async function getListing(id) {
   const res = await fetch(
@@ -162,7 +163,7 @@ function ItemPageContent({ params }) {
   }, [id]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading message="Loading item details..." />;
   }
 
   if (!listing) {

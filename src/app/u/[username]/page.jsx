@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/AuthGuard";
+import Loading from "@/components/Loading";
 
 async function getUserByUsername(username) {
   const res = await fetch(
@@ -89,7 +90,7 @@ function UserProfileContent({ params }) {
   }, [username]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading message="Loading user profile..." />;
   }
 
   if (!user) {

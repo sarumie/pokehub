@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import ListingCard from "@/components/discover/ListingCard";
 import { useSearchParams } from "next/navigation";
 import { ProtectedRoute } from "@/components/AuthGuard";
+import Loading from "@/components/Loading";
 
 function SearchResults() {
   const [listings, setListings] = useState([]);
@@ -36,9 +37,7 @@ function SearchResults() {
   return (
     <div className="max-w-[1440px] mx-auto px-6 py-8">
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
-        </div>
+        <Loading fullScreen={false} message="Searching listings..." />
       ) : listings.length === 0 ? (
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold text-gray-800">
@@ -71,9 +70,7 @@ function DiscoverContent() {
       <Suspense
         fallback={
           <div className="max-w-[1440px] mx-auto px-6 py-8">
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
-            </div>
+            <Loading fullScreen={false} message="Loading discover..." />
           </div>
         }
       >

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { FaStar } from "react-icons/fa";
 import { formatTimeAgo } from "@/utils/timeFormat";
+import Loading from "@/components/Loading";
 
 const ReviewsTab = ({ userId }) => {
   const [reviews, setReviews] = useState([]);
@@ -58,11 +59,7 @@ const ReviewsTab = ({ userId }) => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-      </div>
-    );
+    return <Loading fullScreen={false} message="Loading reviews..." />;
   }
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
+import Loading from "@/components/Loading";
 
 // Guard for protected routes (requires authentication)
 export const ProtectedRoute = ({ children }) => {
@@ -14,11 +15,7 @@ export const ProtectedRoute = ({ children }) => {
 
   // Show loading or nothing while checking auth
   if (isLoading || !isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
-      </div>
-    );
+    return <Loading message="Verifying access..." />;
   }
 
   return children;
@@ -36,11 +33,7 @@ export const PublicRoute = ({ children }) => {
 
   // Show loading or nothing while checking auth
   if (isLoading || isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
-      </div>
-    );
+    return <Loading message="Redirecting..." />;
   }
 
   return children;
