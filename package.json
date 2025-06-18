@@ -11,7 +11,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@prisma/client": "^6.9.0",
+    "@prisma/client": "^6.10.0",
     "next": "15.2.3",
     "pokemontcgsdk": "^2.0.0",
     "prisma": "^6.9.0",
