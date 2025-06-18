@@ -1,7 +1,4 @@
 "use client";
-import logo from "#/logo.png";
-import backIcon from "#/assets/Vector.png";
-import bcaIcon from "#/assets/bca-icon.png";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import { useEffect, useState } from "react";
@@ -172,16 +169,81 @@ function CheckoutPageContent() {
     setCountdown(3);
   };
 
-  const updateQuantity = (itemId, newQuantity) => {
+  const updateQuantity = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
 
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === itemId
-          ? { ...item, totalPrice: item.listing.price * newQuantity }
-          : item
-      )
-    );
+    // Find the item to check stock
+    const currentItem = cartItems.find((item) => item.id === itemId);
+    if (!currentItem) return;
+
+    // Check if new quantity exceeds available stock
+    if (newQuantity > currentItem.listing.stock) {
+      alert(
+        `Sorry, only ${currentItem.listing.stock} items available in stock.`
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/cart", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cartItemId: itemId,
+          quantity: newQuantity,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update quantity");
+      }
+
+      const updatedItem = await response.json();
+
+      setCartItems(
+        cartItems.map((item) =>
+          item.id === itemId
+            ? {
+                ...item,
+                quantity: newQuantity,
+                totalPrice: updatedItem.totalPrice,
+              }
+            : item
+        )
+      );
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      // Fallback to local update if API fails
+      setCartItems(
+        cartItems.map((item) =>
+          item.id === itemId
+            ? {
+                ...item,
+                quantity: newQuantity,
+                totalPrice: item.listing.price * newQuantity,
+              }
+            : item
+        )
+      );
+    }
+  };
+
+  const removeFromCart = async (itemId) => {
+    try {
+      const response = await fetch(`/api/cart?cartItemId=${itemId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to remove item from cart");
+      }
+
+      setCartItems(cartItems.filter((item) => item.id !== itemId));
+    } catch (error) {
+      console.error("Error removing from cart:", error);
+    }
   };
 
   if (loading) {
@@ -250,68 +312,177 @@ function CheckoutPageContent() {
             </div>
 
             {/* Cart Items */}
-            {cartItems.map((item) => {
-              const quantity = Math.ceil(item.totalPrice / item.listing.price);
-              return (
-                <div key={item.id} className="bg-white rounded-lg p-4 border">
-                  <div className="flex gap-4">
-                    {/* Product Image */}
-                    <div className="relative w-20 h-20 flex-shrink-0">
-                      <Image
-                        src={"/listing_pict/" + item.listing.pictUrl}
-                        alt={item.listing.name}
-                        fill
-                        className="object-contain rounded"
-                      />
-                    </div>
-
-                    {/* Product Details */}
-                    <div className="flex-1">
-                      <div className="flex items-start gap-2 mb-2">
-                        <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-red-600 text-xs font-bold">
-                            JB
-                          </span>
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-600">Jakwan Bagung</p>
-                          <h3 className="font-medium">{item.listing.name}</h3>
-                        </div>
+            {cartItems.length === 0 ? (
+              <div className="bg-white rounded-lg p-8 border text-center">
+                <div className="text-gray-400 mb-4">
+                  <svg
+                    className="w-16 h-16 mx-auto"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l-2.5 5M17 17a2 2 0 11-4 0 2 2 0 014 0zm-8 0a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Your cart is empty
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  Add some items to your cart to continue shopping.
+                </p>
+                <button
+                  onClick={() => router.push("/discover")}
+                  className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  Continue Shopping
+                </button>
+              </div>
+            ) : (
+              cartItems.map((item) => {
+                const quantity =
+                  item.quantity ||
+                  Math.ceil(item.totalPrice / item.listing.price);
+                return (
+                  <div key={item.id} className="bg-white rounded-lg p-4 border">
+                    <div className="flex gap-4">
+                      {/* Product Image */}
+                      <div className="relative w-20 h-20 flex-shrink-0">
+                        <Image
+                          src={item.listing.pictUrl}
+                          alt={item.listing.name}
+                          fill
+                          className="object-contain rounded"
+                        />
                       </div>
 
-                      {/* Quantity Controls and Price */}
-                      <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center gap-3">
+                      {/* Product Details */}
+                      <div className="flex-1">
+                        <div className="flex items-start gap-2 mb-2">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            {item.listing.seller?.profilePicture ? (
+                              <Image
+                                src={item.listing.seller.profilePicture}
+                                alt={item.listing.seller.username}
+                                width={32}
+                                height={32}
+                                className="object-cover rounded-full"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-200 rounded-full flex items-center justify-center">
+                                <span className="text-gray-500 text-xs font-bold">
+                                  {item.listing.seller?.username
+                                    ?.charAt(0)
+                                    ?.toUpperCase() || "?"}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm text-gray-600">
+                              {item.listing.seller?.username ||
+                                "Unknown Seller"}
+                            </p>
+                            <h3 className="font-medium">{item.listing.name}</h3>
+                          </div>
                           <button
-                            onClick={() =>
-                              updateQuantity(item.id, quantity - 1)
-                            }
-                            className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                            onClick={() => removeFromCart(item.id)}
+                            className="text-gray-400 hover:text-red-500 p-1"
+                            title="Remove from cart"
                           >
-                            -
-                          </button>
-                          <span className="w-8 text-center">{quantity}</span>
-                          <button
-                            onClick={() =>
-                              updateQuantity(item.id, quantity + 1)
-                            }
-                            className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
-                          >
-                            +
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
                           </button>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-600">Subtotal</p>
-                          <p className="font-semibold">
-                            {formatPrice(item.totalPrice)}
-                          </p>
+
+                        {/* Stock Info */}
+                        <div className="text-xs mb-2 flex items-center gap-1">
+                          <span
+                            className={`${
+                              item.listing.stock <= 5
+                                ? item.listing.stock <= 2
+                                  ? "text-red-500"
+                                  : "text-orange-500"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            Stock: {item.listing.stock} available
+                          </span>
+                          {item.listing.stock <= 5 && (
+                            <span className="text-xs text-red-500 font-medium">
+                              {item.listing.stock <= 2
+                                ? "• Almost gone!"
+                                : "• Low stock"}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Quantity Controls and Price */}
+                        <div className="flex items-center justify-between mt-4">
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() =>
+                                updateQuantity(item.id, quantity - 1)
+                              }
+                              disabled={quantity <= 1}
+                              className={`w-8 h-8 rounded-full border flex items-center justify-center ${
+                                quantity <= 1
+                                  ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                                  : "border-gray-300 hover:bg-gray-50 text-gray-700"
+                              }`}
+                            >
+                              -
+                            </button>
+                            <span className="w-8 text-center font-medium">
+                              {quantity}
+                            </span>
+                            <button
+                              onClick={() =>
+                                updateQuantity(item.id, quantity + 1)
+                              }
+                              disabled={quantity >= item.listing.stock}
+                              className={`w-8 h-8 rounded-full border flex items-center justify-center ${
+                                quantity >= item.listing.stock
+                                  ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                                  : "border-gray-300 hover:bg-gray-50 text-gray-700"
+                              }`}
+                              title={
+                                quantity >= item.listing.stock
+                                  ? "Maximum stock reached"
+                                  : "Increase quantity"
+                              }
+                            >
+                              +
+                            </button>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-600">Subtotal</p>
+                            <p className="font-semibold">
+                              {formatPrice(item.totalPrice)}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
 
           {/* Right Column - Payment & Summary */}
@@ -321,8 +492,14 @@ function CheckoutPageContent() {
               <h2 className="font-semibold mb-4">Payment</h2>
               <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50 border-blue-200">
                 <div className="flex items-center gap-3">
-                  <Image src={bcaIcon} alt="BCA" width={24} height={24} />
-                  <span className="font-medium">BCA (Transfer)</span>
+                  <Image
+                    src="https://cdn-1.files.vc/files/inh/a2e63eb09668a78fe530b08d7e9e2b75.svg"
+                    alt="QRIS"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6"
+                  />
+                  <span className="font-medium">QRIS</span>
                 </div>
                 <div className="w-5 h-5 rounded-full border-2 border-blue-600 flex items-center justify-center">
                   <div className="w-3 h-3 rounded-full bg-blue-600"></div>
