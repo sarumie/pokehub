@@ -8,6 +8,7 @@ import Sidebar from "@/components/Sidebar";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/AuthGuard";
 import Loading from "@/components/Loading";
+import ReviewsTab from "@/components/profile/ReviewsTab";
 
 async function getUserByUsername(username) {
   const res = await fetch(
@@ -62,6 +63,7 @@ function UserProfileContent({ params }) {
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("listings");
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -154,89 +156,70 @@ function UserProfileContent({ params }) {
           </div>
         </div>
 
-        {/* Listings Section */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 mb-6">
-          <h2 className="text-2xl font-bold mb-6">Barang yang Dijual</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {user.listings.map((listing) => (
-              <div
-                key={listing.id}
-                className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => router.push(`/item/${listing.id}`)}
-              >
-                <div className="aspect-square relative rounded-lg overflow-hidden mb-3">
-                  <Image
-                    src={listing.pictUrl}
-                    alt={listing.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <h3 className="font-semibold mb-2 line-clamp-2">
-                  {listing.name}
-                </h3>
-                <p className="text-lg font-bold text-blue-600">
-                  Rp {listing.price.toLocaleString("id-ID")}
-                </p>
-                <p className="text-sm text-slate-500">Stok: {listing.stock}</p>
-              </div>
-            ))}
-          </div>
-          {user.listings.length === 0 && (
-            <p className="text-slate-500 text-center py-8">
-              Belum ada barang yang dijual
-            </p>
-          )}
-        </div>
-
-        {/* Reviews Section */}
+        {/* Tabs Section */}
         <div className="bg-white rounded-2xl border border-slate-200 p-8">
-          <h2 className="text-2xl font-bold mb-6">
-            Semua Review ({ratings.length})
-          </h2>
+          {/* Tab Navigation */}
+          <div className="flex border-b border-slate-200 mb-6">
+            <button
+              onClick={() => setActiveTab("listings")}
+              className={`px-6 py-3 font-semibold text-lg border-b-2 transition-colors ${
+                activeTab === "listings"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-slate-600 hover:text-slate-800"
+              }`}
+            >
+              Barang yang Dijual
+            </button>
+            <button
+              onClick={() => setActiveTab("reviews")}
+              className={`px-6 py-3 font-semibold text-lg border-b-2 transition-colors ${
+                activeTab === "reviews"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-slate-600 hover:text-slate-800"
+              }`}
+            >
+              Reviews
+            </button>
+          </div>
 
-          {ratings.length > 0 ? (
-            <div className="space-y-6">
-              {ratings.map((rating) => (
-                <div
-                  key={rating.id}
-                  className="border-b border-slate-100 last:border-b-0 pb-6 last:pb-0"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 relative rounded-full overflow-hidden flex-shrink-0">
+          {/* Tab Content */}
+          {activeTab === "listings" ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {user.listings.map((listing) => (
+                  <div
+                    key={listing.id}
+                    className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => router.push(`/item/${listing.id}`)}
+                  >
+                    <div className="aspect-square relative rounded-lg overflow-hidden mb-3">
                       <Image
-                        src={rating.reviewerAvatar}
-                        alt={rating.reviewerName}
+                        src={listing.pictUrl}
+                        alt={listing.name}
                         fill
                         className="object-cover"
                       />
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-semibold">{rating.reviewerName}</h4>
-                        <StarRating rating={rating.rating} size={16} />
-                        <span className="text-sm text-slate-500">
-                          {rating.timeAgo}
-                        </span>
-                      </div>
-                      {rating.listingName && (
-                        <p className="text-sm text-slate-600 mb-2">
-                          Review untuk:{" "}
-                          <span className="font-medium">
-                            {rating.listingName}
-                          </span>
-                        </p>
-                      )}
-                      <p className="text-slate-700 leading-relaxed">
-                        {rating.comment}
-                      </p>
-                    </div>
+                    <h3 className="font-semibold mb-1 line-clamp-2">
+                      {listing.name}
+                    </h3>
+                    <p className="text-lg font-bold text-black mb-1">
+                      Rp {listing.price.toLocaleString("id-ID")}
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      Stok: {listing.stock}
+                    </p>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              {user.listings.length === 0 && (
+                <p className="text-slate-500 text-center py-8">
+                  Belum ada barang yang dijual
+                </p>
+              )}
+            </>
           ) : (
-            <p className="text-slate-500 text-center py-8">Belum ada review</p>
+            <ReviewsTab userId={user.id} />
           )}
         </div>
       </div>
