@@ -3,14 +3,16 @@ import prisma from "@/lib/prisma";
 
 export async function GET(request, { params }) {
   try {
-    if (!params?.id) {
+    const resolvedParams = await params;
+
+    if (!resolvedParams?.id) {
       return NextResponse.json(
         { error: "User ID is required" },
         { status: 400 }
       );
     }
 
-    const userId = params.id;
+    const userId = resolvedParams.id;
 
     // Verify that prisma client is initialized
     if (!prisma?.rating) {
