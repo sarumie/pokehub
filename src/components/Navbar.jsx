@@ -54,7 +54,7 @@ const Header = ({ toggleSidebar }) => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
+    if (searchQuery.trim() && searchQuery.trim().length >= 3) {
       router.push(`/discover?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
