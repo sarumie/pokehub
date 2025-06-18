@@ -6,10 +6,25 @@ export async function POST(request) {
   try {
     const { username, password } = await request.json();
 
-    // Find user by username
-    const user = await prisma.user.findUnique({
-      where: { username },
-    });
+    // Find user by username with retry logic for prepared statement issues
+    let user;
+    let retries = 3;
+
+    while (retries > 0) {
+      try {
+        user = await prisma.user.findUnique({
+          where: { username },
+        });
+        break; // Success, exit retry loop
+      } catch (error) {
+        retries--;
+        if (retries === 0 || !error.message.includes("prepared statement")) {
+          throw error; // Re-throw if not a prepared statement error or out of retries
+        }
+        // Wait a bit before retrying
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+    }
 
     if (!user || user.password !== password) {
       return NextResponse.json(
