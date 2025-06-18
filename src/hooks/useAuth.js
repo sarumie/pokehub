@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 export const useAuth = () => {
@@ -8,26 +8,29 @@ export const useAuth = () => {
   const [userId, setUserId] = useState(null);
   const router = useRouter();
 
-  const verifyUser = async (id) => {
-    try {
-      const response = await fetch(`/api/profile?userId=${id}`);
-      if (!response.ok) {
-        if (response.status === 404) {
-          // User not found in database
-          sessionStorage.removeItem("userId");
-          setIsAuthenticated(false);
-          setUserId(null);
-          router.push("/login");
-          return false;
+  const verifyUser = useCallback(
+    async (id) => {
+      try {
+        const response = await fetch(`/api/profile?userId=${id}`);
+        if (!response.ok) {
+          if (response.status === 404) {
+            // User not found in database
+            sessionStorage.removeItem("userId");
+            setIsAuthenticated(false);
+            setUserId(null);
+            router.push("/login");
+            return false;
+          }
+          throw new Error("Failed to verify user");
         }
-        throw new Error("Failed to verify user");
+        return true;
+      } catch (error) {
+        console.error("Error verifying user:", error);
+        return false;
       }
-      return true;
-    } catch (error) {
-      console.error("Error verifying user:", error);
-      return false;
-    }
-  };
+    },
+    [router]
+  );
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -65,7 +68,7 @@ export const useAuth = () => {
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
-  }, []);
+  }, [verifyUser]);
 
   const login = (userIdValue) => {
     sessionStorage.setItem("userId", userIdValue);

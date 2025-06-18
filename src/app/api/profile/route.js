@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { retryPrismaQuery } from "@/lib/db-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -16,16 +17,18 @@ export async function GET(request) {
       );
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        fullName: true,
-        profilePicture: true,
-      },
-    });
+    const user = await retryPrismaQuery(() =>
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          fullName: true,
+          profilePicture: true,
+        },
+      })
+    );
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -55,9 +58,11 @@ export async function PUT(request) {
     }
 
     // Check if user exists
-    const existingUser = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    const existingUser = await retryPrismaQuery(() =>
+      prisma.user.findUnique({
+        where: { id: userId },
+      })
+    );
 
     if (!existingUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -65,18 +70,21 @@ export async function PUT(request) {
 
     // Check if username or email already exists (excluding current user)
     if (username || email) {
-      const duplicateUser = await prisma.user.findFirst({
-        where: {
-          AND: [
-            { id: { not: userId } },
-            {
-              OR: [username ? { username } : {}, email ? { email } : {}].filter(
-                (obj) => Object.keys(obj).length > 0
-              ),
-            },
-          ],
-        },
-      });
+      const duplicateUser = await retryPrismaQuery(() =>
+        prisma.user.findFirst({
+          where: {
+            AND: [
+              { id: { not: userId } },
+              {
+                OR: [
+                  username ? { username } : {},
+                  email ? { email } : {},
+                ].filter((obj) => Object.keys(obj).length > 0),
+              },
+            ],
+          },
+        })
+      );
 
       if (duplicateUser) {
         if (duplicateUser.username === username) {
@@ -102,17 +110,19 @@ export async function PUT(request) {
     if (newPassword) updateData.password = newPassword; // Note: In production, hash the password
 
     // Update user
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: updateData,
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        fullName: true,
-        profilePicture: true,
-      },
-    });
+    const updatedUser = await retryPrismaQuery(() =>
+      prisma.user.update({
+        where: { id: userId },
+        data: updateData,
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          fullName: true,
+          profilePicture: true,
+        },
+      })
+    );
 
     return NextResponse.json(updatedUser);
   } catch (error) {
