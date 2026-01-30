@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.10.0",
-    "next": "15.2.3",
+    "next": "15.2.8",
     "pokemontcgsdk": "^2.0.0",
     "prisma": "^6.9.0",
     "react": "^19.0.0",
